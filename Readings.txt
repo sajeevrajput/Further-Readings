@@ -1,0 +1,9 @@
+For Reading
+==============
+TENSORFLOW
+1. https://cs224d.stanford.edu/lectures/CS224d-Lecture7.pdf
+
+
+RESEARCH MATERIALS
+1. Neural Style Transfer- Visualizing and Understanding Convolutional Networks [https://arxiv.org/abs/1311.2901]
+2.
