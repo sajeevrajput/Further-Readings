@@ -2,6 +2,7 @@ For Reading
 ==============
 TENSORFLOW
 1. https://cs224d.stanford.edu/lectures/CS224d-Lecture7.pdf
+2. http://download.tensorflow.org/paper/whitepaper2015.pdf [WHITEPAPER]
 
 
 RESEARCH MATERIALS
