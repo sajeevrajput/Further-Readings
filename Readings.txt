@@ -6,4 +6,4 @@ TENSORFLOW
 
 RESEARCH MATERIALS
 1. Neural Style Transfer- Visualizing and Understanding Convolutional Networks [https://arxiv.org/abs/1311.2901]
-2.
+2. http://www.chioka.in/tensorflow-implementation-neural-algorithm-of-artistic-style [blog]
