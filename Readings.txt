@@ -8,3 +8,4 @@ TENSORFLOW
 RESEARCH MATERIALS
 1. Neural Style Transfer- Visualizing and Understanding Convolutional Networks [https://arxiv.org/abs/1311.2901]
 2. http://www.chioka.in/tensorflow-implementation-neural-algorithm-of-artistic-style [blog]
+Spatial Pyramid Pooling in Deep Convolutional Networks for Visual Recognition [https://arxiv.org/pdf/1406.4729.pdf]
