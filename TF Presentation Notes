@@ -1,0 +1,41 @@
+Tensorflow presentation Notes
+===============================
+
+TENSOR
+(explains how to create, manipulate, and access Tensors--the fundamental object in TensorFlow)
+
+	TensorFlow, as the name indicates, is a framework to define and run computations involving tensors. A tensor is a generalization of vectors and matrices to potentially higher dimensions. Internally, TensorFlow represents tensors as n-dimensional arrays of base datatypes.
+
+	A tf.Tensor has the following properties:
+		a data type (float32, int32, or string, for example)
+		a shape
+	Each element in the Tensor has the same data type, and the data type is always known.
+	Some types of tensors are special, and these will be covered in other units of the Programmer's guide. The main ones are:
+		tf.Variable
+		tf.Constant
+		tf.Placeholder
+		tf.SparseTensor
+	With the exception of tf.Variable, the value of a tensor is immutable
+
+	The rank of a tf.Tensor object is its number of dimensions.
+	Slicing:
+		For tensors of rank 2 or higher, the situation is more interesting. For a tf.Tensor of rank 2, passing two numbers returns a scalar, as expected:
+			my_scalar = my_matrix[1, 2]
+			Passing a single number, however, returns a subvector of a matrix
+	Shape:
+		two ways of accessing the shape of a tf.Tensor
+			reading the shape property of a tf.Tensor object. This method returns a TensorShape object, which is a convenient way of representing partially-specified shapes
+			tf.shape operation
+	Reshape:
+		tf.reshape
+			the number of elements of the reshaped Tensors has to match the # original number of elements
+	
+	Data types
+		It is not possible to have a tf.Tensor with more than one data type. It is possible, however, to serialize arbitrary data structures as strings and store those in tf.Tensors.
+
+		It is possible to cast tf.Tensors from one datatype to another using tf.cast
+	Evaluating Tensors
+		Simplest way to evaluate a Tensor is using the Tensor.eval method. The eval method only works when a default tf.Session is active 
+		
+	Printing Tensor
+		For debugging purposes you might want to print the value of a tf.Tensor

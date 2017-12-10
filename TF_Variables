@@ -1,0 +1,52 @@
+VARIABLES:
+
+	represent shared, persistent state manipulated by your program
+	Unlike tf.Tensor objects, a tf.Variable exists outside the context of a single session.run call.
+	modifications are visible across multiple tf.Sessions, so multiple workers can see the same values for a tf.Variable
+	
+	Create a variable:
+		create a variable with tf.get_variable, simply provide the name and shape. Using get_variable will help you refactor code.
+			my_variable = tf.get_variable("my_variable", [1, 2, 3])
+		optionally specify the dtype and initializer to tf.get_variable
+			my_int_variable = tf.get_variable("my_int_variable", [1, 2, 3], dtype=tf.int32, initializer=tf.zeros_initializer)
+		tf.get_variable also allows you to reuse a previously created variable of the same name, making it easy to define models which reuse layers.
+		Two main differences between tf.Variable() and the other:
+
+			First is that tf.Variable will always create a new variable, whether tf.get_variable gets from the graph an existing variable with those parameters, and if it does not exists, it creates a new one.
+
+			tf.Variable requires that an initial value be specified.
+	Collection of Variables:
+	
+		Because disconnected parts of a TensorFlow program might want to create variables, it is sometimes useful to have a single way to access all of them. For this reason TensorFlow provides collections, which are named lists of tensors or other objects, such as tf.Variable instances.
+			my_local = tf.get_variable("my_local", shape=(), 
+			collections=[tf.GraphKeys.LOCAL_VARIABLES])
+
+			
+	Device placement
+		you can place variables on particular devices. For example, the following snippet creates a variable named v and places it on the second GPU device:
+			with tf.device("/device:GPU:1"):
+			v = tf.get_variable("v", [1])
+		It is particularly important for variables to be in the correct device in distributed settings.
+		
+	Initializing variables
+		Before you can use a variable, it must be initialized. If programmed in low level TensorFlow API,you need to explicitly do that. Most high-level frameworks such as tf.contrib.slim, tf.estimator.Estimator and Keras automatically initialize variables for you before training a model.
+		To initialize all trainable variables in one go, before training starts, call tf.global_variables_initializer()
+	Sharing variables
+		Variable scopes allow you to control variable reuse when calling functions which implicitly create and use variables. They also allow you to name your variables in a hierarchical and understandable way.
+		For example, a function conv_relu() has been defined with inputs "weights" and "biases" already defined using get_vaiables. Calling the same function twice will fails 
+		because TF is not sure whether to reuse the variables or create  new ones.
+			input1 = tf.random_normal([1,10,10,32])
+			input2 = tf.random_normal([1,20,20,32])
+			x = conv_relu(input1, kernel_shape=[5, 5, 32, 32], bias_shape=[32])
+			x = conv_relu(x, kernel_shape=[5, 5, 32, 32], bias_shape = [32])  # This fails.
+
+			
+		Calling conv_relu in different scopes, however, clarifies that we want to create new variables
+			def my_image_filter(input_images):
+				with tf.variable_scope("conv1"):
+					# Variables created here will be named "conv1/weights", "conv1/biases".
+					relu1 = conv_relu(input_images, [5, 5, 32, 32], [32])
+				with tf.variable_scope("conv2"):
+					# Variables created here will be named "conv2/weights", "conv2/biases".
+					return conv_relu(relu1, [5, 5, 32, 32], [32])
+			

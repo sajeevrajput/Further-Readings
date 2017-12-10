@@ -1,0 +1,75 @@
+GRAPHS and SESSIONS
+
+	 In a dataflow graph, the nodes represent units of computation, and the edges represent the data consumed or produced by a computation.
+	 You first define the dataflow graph, then create a TensorFlow session to run parts of the graph across a set of local and remote devices
+	 Dataflow has several advantages:
+		Parallelism
+		Distributed execution
+		Compilation
+		Portability-The dataflow graph is a language-independent representation of the code in your model
+	
+	A tf.Graph contains two relevant kinds of information:
+		Graph structure
+		Graph collections
+	
+	Most TensorFlow programs start with a dataflow graph construction phase. In this phase, you invoke TensorFlow API functions that construct new tf.Operation (node) and tf.Tensor (edge) objects and add them to a tf.Graph instance. TensorFlow provides a default graph that is an implicit argument to all API functions in the same context.
+		Calling tf.constant(42.0) creates a single tf.Operation that produces the value 42.0, adds it to the default graph, and returns a tf.Tensor that represents the value of the constant.
+		
+		Calling tf.matmul(x, y) creates a single tf.Operation that multiplies the values of tf.Tensor objects x and y, adds it to the default graph, and returns a tf.Tensor that represents the result of the multiplication.
+	
+	Placing operations on different devices
+		[/job:<JOB_NAME>/task:<TASK_INDEX>/device:<DEVICE_TYPE>:<DEVICE_INDEX>]
+		You do not need to specify every part of a device specification. For example, if you are running in a single-machine configuration with a single GPU, you might use tf.device to pin some operations to the CPU and GPU:
+			# Operations created outside either context will run on the "best possible"
+			# device. For example, if you have a GPU and a CPU available, and the operation
+			# has a GPU implementation, TensorFlow will choose the GPU.
+			weights = tf.random_normal(...)
+
+			with tf.device("/device:CPU:0"):
+			  # Operations created in this context will be pinned to the CPU.
+			  img = tf.decode_jpeg(tf.read_file("img.jpg"))
+
+			with tf.device("/device:GPU:0"):
+			  # Operations created in this context will be pinned to the GPU.
+			  result = tf.matmul(weights, img)
+		If you are deploying TensorFlow in a typical distributed configuration, you might specify the job name and task ID to place variables on a task in the parameter server job ("/job:ps"), and the other operations on task in the worker job ("/job:worker"):
+			with tf.device("/job:ps/task:0"):
+			  weights_1 = tf.Variable(tf.truncated_normal([784, 100]))
+			  biases_1 = tf.Variable(tf.zeroes([100]))
+			  
+		the tf.train.replica_device_setter API can be used with tf.device to place operations for data-parallel distributed training. 
+			with tf.device(tf.train.replica_device_setter(ps_tasks=3)):
+			  # tf.Variable objects are, by default, placed on tasks in "/job:ps" in a
+			  # round-robin fashion.
+			  w_0 = tf.Variable(...)  # placed on "/job:ps/task:0"
+			  b_0 = tf.Variable(...)  # placed on "/job:ps/task:1"
+			  w_1 = tf.Variable(...)  # placed on "/job:ps/task:2"
+			  b_1 = tf.Variable(...)  # placed on "/job:ps/task:0"
+
+			  input_data = tf.placeholder(tf.float32)     # placed on "/job:worker"
+			  layer_0 = tf.matmul(input_data, w_0) + b_0  # placed on "/job:worker"
+			  layer_1 = tf.matmul(layer_0, w_1) + b_1     # placed on "/job:worker"
+			  
+	Tensor-like objects
+		Tensor-like objects include elements of the following types:
+
+			tf.Tensor
+			tf.Variable
+			numpy.ndarray
+			list (and lists of tensor-like objects)
+			Scalar Python types: bool, float, int, str
+			
+		By default, TensorFlow will create a new tf.Tensor each time you use the same tensor-like object. If the tensor-like object is large (e.g. a numpy.ndarray containing a set of training examples) and you use it multiple times, you may run out of memory. To avoid this, manually call tf.convert_to_tensor on the tensor-like object once and use the returned tf.Tensor instead.
+		
+	Executing a graph in a tf.Session
+		typically used as a context manager (in a with block) that automatically closes the session when you exit the block
+		# Create a default in-process session.
+		with tf.Session() as sess:
+		  # ...
+		# Create a remote session.
+		with tf.Session("grpc://example.org:2222"):
+		  # ...
+	
+	Visualizing your graph
+
+		create a visualization is to pass a tf.Graph when creating the tf.summary.FileWriter
