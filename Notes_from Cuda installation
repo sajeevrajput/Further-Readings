@@ -1,0 +1,132 @@
+1.Installing NVIDIA Display driver(>387 to support cuda 9.1)
+2.Installing Cuda9.1 toolkit
+3.Installing cudNN
+
+
+
+===================================
+Installing NVIDIA Display driver. =
+===================================
+It is assumed that you did a fresh installation of Ubuntu 16.04 LTS on you machine. 
+You do have a NVIDIA graphics card on your system but havent installed the NVIDIA driver yet.
+
+Download the NVIDIA display driver from official nvidia website.
+
+	NVIDIA-Linux-x86_64-390.25.run
+
+Following dependencies are required for installation:
+	1. build-essential
+	2. dkms
+	Can execute these alongwith these additional packages:
+		>> sudo apt-get install build-essential gcc-multilib dkms
+	Install one-by-one if necessary.
+
+Blacklist Nouveau Driver
+	Create a file /etc/modprobe.d/blacklist-nouveau.conf and add the commands.
+	>> sudo nano /etc/modprobe.d/blacklist-nouveau.conf
+	Add 	blacklist nouveau
+		options nouveau modeset=0
+	and Save.(CTRL+X in nano)
+	excute the following:
+	>> sudo update-initramfs -u
+REBOOT the system
+
+Once the PC is rebooted, switch to terminal mode by pressing CTRL+ALT+F1 and disable lightdm service
+	>> sudo service lightdm stop
+Navigate to the folder that has the NVIDIA display driver. Set permission and run it.
+	>> chmod +x NVIDIA-Linux-x86_64-384.69.run
+	>> sudo ./NVIDIA-Linux-x86_64-384.69.run --dkms -s
+
+Installation should be complete now.
+
+Check the installation by typing nvidia-smi
+	>> nvidia-smi
+
+REBOOT the system
+Upon reboot, check typing NVIDA X Server settings in search. It should appear with all the details of your driver.
+
+==========================================
+INSTALLING CUDA TOOLKIT 9.1
+==========================================
+
+Download the NVIDIA Cuda toolkit from official nvidia website.
+	
+	cuda_9.1.85_387.26_linux.run
+check the md5sum <file> to verify integrity
+
+Run the cuda toolkit by giving permission to it
+	>> chmod +x cuda_9.1.85_387.26_linux.run
+	>> sudo sh cuda_9.1.85_387.26_linux
+	
+	Accept EULA
+	DENY NVIDIA driver installation
+	Install CUDA 9.1
+	Install symbolic links
+	Install CUDA 9.1 samples (for testing installation by running deviceQuery and BandwithTest)
+If you see a message that says "missing recommended library", then sudo apt-get install them separately and re-run the cuda toolkit runfile
+	>> sudo apt-get install g++ freeglut3-dev build-essential libx11-dev libxmu-dev libxi-dev libglu1-mesa libglu1-mesa-dev
+
+Once the library files are copied, add the following environment variables to your .bashrc file. Use sudo nano if needed to edit
+	
+	export PATH=/usr/local/cuda-9.1/bin${PATH:+:${PATH}}
+	export LD_LIBRARY_PATH=/usr/local/cuda-9.1/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+	
+	Open a new terminal and type nvcc -V to see the version details. You can source the .bashrc file in the same terminal to see the nvcc version
+
+Another mandatory set-up post-installation is the POWER9 setup
+	[1].
+	Create the .service file at the path: /usr/lib/systemd/system/nvidia-persistenced.service
+	Use mkdir or nano if needed. Save the following text:
+		[Unit]
+		Description=NVIDIA Persistence Daemon
+		Wants=syslog.target
+
+		[Service]
+		Type=forking
+		PIDFile=/var/run/nvidia-persistenced/nvidia-persistenced.pid
+		Restart=always
+		ExecStart=/usr/bin/nvidia-persistenced --verbose
+		ExecStopPost=/bin/rm -rf /var/run/nvidia-persistenced
+
+		[Install]
+		WantedBy=multi-user.target
+
+	Run the command
+		>> sudo systemctl enable nvidia-persistenced
+	[2].
+	Disable a udev rule in the file : 
+		/lib/udev/rules.d/40-vm-hotadd.rules
+	Comment the line that looks like this
+		SUBSYSTEM=="memory", ACTION=="add", PROGRAM="/bin/uname -p", RESULT!="s390*", ATTR{state}=="offline", ATTR{state}="online"
+	Save and exit.
+REBOOT the system
+
+
+
+===================================
+VERIFY the installation
+===================================
+Compile the CUDA Samples by navigating inside ~/NVIDIA_CUDA-9.1_Samples and type 
+	>> make
+All the binaries will be saved in ~/NVIDIA_CUDA-9.1_Samples/bin/x86_64/linux/release
+Run deviceQuery to see the results. should PASS at the end
+	>> ./deviceQuery
+Run bandwidthTest to see the results. should PASS at the end
+	>> ./bandwidthTest
+
+
+This completes CUDA toolkit install verification
+
+====================================
+Installing cudNN 
+====================================
+See the official documentation for CudNN
+
+
+
+
+REFERENCES:
+https://gist.github.com/wangruohui/df039f0dc434d6486f5d4d098aa52d07
+http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#mandatory-post
+http://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html#installlinux
+
