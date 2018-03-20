@@ -120,7 +120,20 @@ This completes CUDA toolkit install verification
 ====================================
 Installing cudNN 
 ====================================
-See the official documentation for CudNN
+SDownload cudnn library for linux from NVIDIA page [https://developer.nvidia.com/rdp/cudnn-download]
+
+
+ 1.  Navigate to your <cudnnpath> directory containing the cuDNN Tar file.
+ 2.  Unzip the cuDNN package.
+
+    $ tar -xzvf cudnn-9.0-linux-x64-v7.tgz
+
+ 3.  Copy the following files into the CUDA Toolkit directory.
+
+    $ sudo cp cuda/include/cudnn.h /usr/local/cuda/include
+    $ sudo cp cuda/lib64/libcudnn* /usr/local/cuda/lib64
+    $ sudo chmod a+r /usr/local/cuda/include/cudnn.h
+    /usr/local/cuda/lib64/libcudnn*
 
 
 
