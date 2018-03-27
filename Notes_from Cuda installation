@@ -1,3 +1,8 @@
+***********************************
+* YOU CAN SAVE YOUR TIME BY USING .deb files instead of .run files for both CUDA Toolkit and cuDNN
+*****************************************
+
+
 1.Installing NVIDIA Display driver(>387 to support cuda 9.1)
 2.Installing Cuda9.1 toolkit
 3.Installing cudNN
